@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title><%= title %></title>
+      <link rel="stylesheet" href="stylesheets/normalize.css">
+      <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+      <link rel="stylesheet" href="stylesheets/style.css">
+      <script src="javascripts/jquery-3.1.1.min.js"></script>
+   </head>
+   <body>
+      <form action="index.html" method="post">
+         <fieldset>
+            <h4>AWS Integration Request Form</h4>
+            <label for="req_url">URL:</label>
+            <input type="text" id="req_url" name="req_url" value="">          
+            <label for="req_method">Method:</label>
+            <select id="req_method" name="req_method" >
+               <option id="meth_get" value="GET" selected>GET</option >
+               <option id="meth_post" value="POST" >POST</option >
+               <option id="meth_put" value="PUT">PUT</option >
+               <option id="meth_delete" value="DELETE" >DELETE</option >
+            </select>
+            <label for="req_headers">Request Headers:</label>
+            <textarea id="req_headers" name="req_headers" rows="5" cols="20" >{"Content-Type":"application/json"}</textarea>			          		  
+            <label for="req_body">Request Body:</label>
+            <textarea id="req_body" name="req_body" rows="5" cols="20" ></textarea>
+            <label for="results">Results:</label>
+            <textarea id="results" name="results" rows="5" cols="100" ></textarea>
+            <button type="button" id="frm_submit">Submit</button>
+         </fieldset>
+      </form>
+      <script type='text/javascript'>
+         $('#frm_submit').click(function(){
+         	$.ajax({
+         		type:$('[name=req_method]').val(),
+         		beforeSend: function (request)
+         		{
+					var req_headers = JSON.parse($('[name=req_headers]').val());
+					for (var rq_hdr in req_headers) {
+						request.setRequestHeader(rq_hdr, req_headers[rq_hdr]);
+					}
+         		},
+         		data: $('[name=req_body]').val(),
+         		url: $('[name=req_url]').val(),
+         		processData: false,
+         		success: function(msg) {
+         			$("#results").empty().append(JSON.stringify(msg, null, 2));
+         		}
+         	});	
+         });	
+      </script>      
+   </body>
+</html>

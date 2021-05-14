@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><%= title %></title>
+        <link rel="stylesheet" href="stylesheets/normalize.css">
+        <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="stylesheets/style.css">
+        <script src="javascripts/jquery-3.1.1.min.js"></script>	
+    </head>
+    <body>
+        <form action="index.html" method="post">
+            <fieldset>
+                <h4>AWS Swagger Form</h4>
+                <label for="req_http_statuses">HTTP Status(Comma Separated):</label>
+                <input type="text" id="req_http_statuses" name="req_http_statuses" value="200,201,400,401,403,412,418">
+				<label for="req_headers">Request Headers(Comma Separated):</label>
+				<textarea id="req_headers" name="req_headers" rows="5" cols="20" >Content-Type,x-api-key,x-access-token</textarea>
+				<label for="res_headers">Response Headers(Comma Separated):</label>
+				<textarea id="res_headers" name="res_headers" rows="5" cols="20" >x-access-token</textarea>
+				<label for="req_query_params">Request Query Parameters(Comma Separated):</label>
+				<textarea id="req_query_params" name="req_query_params" rows="5" cols="20" >page,limit</textarea>
+				<label for="req_qs_paths">Request Query Param Paths to include(Comma Separated):</label>
+				<textarea id="req_qs_paths" name="req_qs_paths" rows="5" cols="20" >/v1/users,/v1/groups</textarea>
+				<label for="req_qs_methods">Request Query Param Methods to include(Comma Separated):</label>
+				<textarea id="req_qs_methods" name="req_qs_methods" rows="5" cols="20" >get,get</textarea>																	
+                <label for="swaggerfile">Upload Swagger File Here:</label>			    
+                <input name="swaggerfile" id="swaggerfile" type="file" />
+				<!--
+				<label id="beautify_results">Beautify Results?</label>
+				<select id="beautify_results" name="beautify_results" >
+				   <option id="1" value="Yes" selected>Yes</option >
+				   <option id="2" value="No" >No</option >
+				</select>
+				-->							  
+                <label for="name">Processed Swagger File Content:</label>
+                <textarea id="results" name="results" rows="10" cols="100" autocomplete="off" spellcheck="false"></textarea>
+                <label id="copy_results" class="custom_label">Copy Results</label>
+                <label for="name">Note: Feed your swagger file content without adding statuses and CORS.<br />We use your swagger file temporary for processing and unlink after usage.</label>
+                <button type="button" id="frm_submit">Submit</button>
+            </fieldset>
+        </form>
+        <script type='text/javascript'>
+            $('#frm_submit').click(function(){
+            
+            	var fd = new FormData();		
+            	fd.append( 'file', $('#swaggerfile')[0].files[0]);			
+            	fd.append( 'http_statuses', $("#req_http_statuses").val() );
+				fd.append( 'req_headers', $("#req_headers").val() );
+				fd.append( 'res_headers', $("#res_headers").val() );
+				fd.append( 'req_query_params', $("#req_query_params").val() );
+				fd.append( 'req_qs_paths', $("#req_qs_paths").val() );				
+				fd.append( 'req_qs_methods', $("#req_qs_methods").val() );
+            	
+            	$.ajax({
+            		url: 'processswagger',
+            		type: 'POST',
+            		dataType: 'json',
+            		enctype: 'multipart/form-data',
+            		processData: false,
+            		contentType: false,			
+            		success: function (data) {
+
+            			var fData = JSON.parse(data);
+						
+						/*
+						if($('#beautify_results').val() == 'Yes'){
+							var fDataB = JSON.stringify(fData, null, 2);
+							$("textarea#results").empty().append(fDataB);  
+						}
+						else{*/
+							var fDataO = JSON.stringify(fData);
+							$("textarea#results").empty().append(fDataO)
+						//}
+						          			
+            		},
+            		data: fd
+            	});		
+            });
+            
+            $("#copy_results").click(function(){
+            	$("textarea#results").select();
+            	document.execCommand('copy');
+            });	
+        </script>      
+    </body>
+</html>
